@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DKIM Key Splitter</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #121212;
+            color: #ffffff;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1e1e1e;
+            padding: 24px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .title {
+            color: #bb86fc;
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+        .mdl-textfield {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+        .mdl-textfield__input {
+            color: #ffffff !important;
+            border-bottom: 1px solid rgba(255,255,255,0.42) !important;
+        }
+        .mdl-textfield__label {
+            color: rgba(255,255,255,0.6) !important;
+        }
+        .mdl-textfield--floating-label.is-focused .mdl-textfield__label {
+            color: #bb86fc !important;
+        }
+        .mdl-textfield__input:focus {
+            border-bottom: 2px solid #bb86fc !important;
+        }
+        .output-container {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #2d2d2d;
+            border-radius: 4px;
+        }
+        .copy-button {
+            margin-left: 8px;
+        }
+        .section-label {
+            color: #bb86fc;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .mdl-button {
+            margin: 8px;
+        }
+        .mdl-button--colored {
+            background-color: #bb86fc !important;
+            color: #000000 !important;
+        }
+        .mdl-button--accent {
+            background-color: #03dac6 !important;
+            color: #000000 !important;
+        }
+        textarea {
+            background-color: #333333 !important;
+            color: #ffffff !important;
+        }
+        textarea:read-only {
+            background-color: #262626 !important;
+        }
+        .mdl-button--raised {
+            background-color: #333333 !important;
+            color: #ffffff !important;
+        }
+        .mdl-button--raised.mdl-button--colored {
+            background-color: #bb86fc !important;
+            color: #000000 !important;
+        }
+        .mdl-button--raised.mdl-button--accent {
+            background-color: #03dac6 !important;
+            color: #000000 !important;
+        }
+        .key-info {
+            color: #03dac6;
+            margin: 16px 0;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: rgba(3, 218, 198, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="title">DKIM Key Splitter</h2>
+
+        <div class="output-container" style="margin-bottom: 24px; background-color: #2d2d2d;">
+            <div style="color: #03dac6; font-weight: bold; margin-bottom: 12px;">ℹ️ What This Tool Does:</div>
+            <div style="color: #ffffff; margin-bottom: 16px;">
+                • Automatically detects if you have a 2048-bit or 4096-bit DKIM key<br>
+                • Splits 2048-bit keys into 2 parts for DNS TXT records<br>
+                • Splits 4096-bit keys into 4 parts for DNS TXT records<br>
+                • Formats each part correctly with quotation marks for DNS records<br>
+                • Shows you exactly how to set up the DNS host records<br>
+                <br>
+                <span style="color: #bb86fc;">Perfect for when your DKIM key is too long for a single DNS TXT record!</span>
+            </div>
+            <div style="color: #666666; font-size: 12px; margin-top: 16px; text-align: right;">
+                Written by Jonas Lund © 2024
+            </div>
+        </div>
+
+        <div class="output-container" style="margin-bottom: 24px; background-color: #2d2d2d;">
+            <div style="color: #03dac6; font-weight: bold; margin-bottom: 12px;">🔒 Security Information:</div>
+            <div style="color: #ffffff; margin-bottom: 16px;">
+                • This tool runs entirely in your browser - no data is ever sent to any server<br>
+                • All key splitting is done locally in your browser using JavaScript<br>
+                • For maximum security, you can download this page and run it offline:<br>
+            </div>
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent" onclick="downloadPage()">
+                💾 Download HTML File for Offline Use
+            </button>
+        </div>
+        
+        <div class="output-container" style="margin-bottom: 24px;">
+            <div class="section-label">Examples:</div>
+            <div style="color: #ffffff; font-family: monospace; font-size: 14px; margin-bottom: 12px;">
+                <strong style="color: #bb86fc;">For 2048-bit key (2 parts):</strong><br>
+                Host: selector._domainkey.example.com<br>
+                Value: "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOC..."<br><br>
+                Host: selector._domainkey2.example.com<br>
+                Value: "AQ8AMIIBCgKCAQEA23456789..."<br><br>
+                
+                <strong style="color: #bb86fc;">For 4096-bit key (4 parts):</strong><br>
+                Host: selector._domainkey.example.com<br>
+                Value: "v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0..."<br><br>
+                Host: selector._domainkey2.example.com<br>
+                Value: "BAQEFAAOCAQ8AMIIBCgKCAQEA..."<br><br>
+                Host: selector._domainkey3.example.com<br>
+                Value: "23456789ABCDEFGHIJKLMNOP..."<br><br>
+                Host: selector._domainkey4.example.com<br>
+                Value: "QRSTUVWXYZ0123456789..."
+            </div>
+            <div style="color: #bb86fc; font-size: 14px;">
+                Note: Replace 'selector' with your DKIM selector (e.g., google, default, mail) and 'example.com' with your domain
+            </div>
+        </div>
+
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <textarea class="mdl-textfield__input" type="text" rows="3" id="input-key"></textarea>
+            <label class="mdl-textfield__label" for="input-key">Paste your DKIM key here...</label>
+        </div>
+
+        <div id="key-info" class="key-info" style="display: none;"></div>
+
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="splitKey()">
+            Split Key
+        </button>
+        <button class="mdl-button mdl-js-button mdl-button--raised" onclick="clearAll()">
+            Clear
+        </button>
+
+        <div class="output-container" id="output-section" style="display: none;">
+        </div>
+    </div>
+
+    <script>
+        function detectKeySize(key) {
+            // Rough estimation based on key length
+            const cleanLength = key.replace(/[^A-Za-z0-9+/=]/g, '').length;
+            if (cleanLength > 600) return 4096;
+            return 2048;
+        }
+
+        function createOutputSection(partNumber, total) {
+            return `
+                <div style="margin-top: ${partNumber === 1 ? '0' : '16px'}">
+                    <div class="section-label">Part ${partNumber} of ${total} (TXT Record ${partNumber}):</div>
+                    <div class="mdl-textfield mdl-js-textfield">
+                        <textarea class="mdl-textfield__input" type="text" rows="2" id="output${partNumber}" readonly></textarea>
+                    </div>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent copy-button" onclick="copyToClipboard('output${partNumber}')">
+                        Copy
+                    </button>
+                </div>
+            `;
+        }
+
+        function splitKey() {
+            const input = document.getElementById('input-key').value.trim();
+            if (!input) {
+                alert('Please enter a DKIM key');
+                return;
+            }
+
+            // Remove any existing quotation marks and whitespace
+            let cleanKey = input.replace(/['"]/g, '').replace(/\s+/g, '');
+            
+            // Detect key size and determine number of parts
+            const keySize = detectKeySize(cleanKey);
+            const numParts = keySize === 4096 ? 4 : 2;
+            
+            // Update key info display
+            const keyInfo = document.getElementById('key-info');
+            keyInfo.textContent = `Detected ${keySize}-bit key - Splitting into ${numParts} parts`;
+            keyInfo.style.display = 'block';
+
+            // Calculate part length
+            const partLength = Math.ceil(cleanKey.length / numParts);
+            
+            // Create output sections
+            const outputSection = document.getElementById('output-section');
+            outputSection.innerHTML = '';
+            for (let i = 1; i <= numParts; i++) {
+                outputSection.innerHTML += createOutputSection(i, numParts);
+            }
+
+            // Split and populate parts
+            for (let i = 0; i < numParts; i++) {
+                const part = cleanKey.substr(i * partLength, partLength);
+                document.getElementById(`output${i + 1}`).value = `"${part}"`;
+            }
+            
+            // Show the output section
+            outputSection.style.display = 'block';
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1500);
+        }
+
+        function clearAll() {
+            document.getElementById('input-key').value = '';
+            document.getElementById('key-info').style.display = 'none';
+            document.getElementById('output-section').style.display = 'none';
+        }
+
+        function downloadPage() {
+            // Create a blob with the current HTML content
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = window.URL.createObjectURL(blob);
+            
+            // Create a temporary link and trigger download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'dkim-key-splitter.html';
+            document.body.appendChild(a);
+            a.click();
+            
+            // Cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
